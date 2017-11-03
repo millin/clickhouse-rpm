@@ -76,6 +76,20 @@ This package contains compressor utility for ClickHouse DBMS.
 # @CH_VERSION@="1.1.54289"
 # @CH_TAG@="stable"
 %setup -q -n ClickHouse-%{version}-@CH_TAG@
+git init
+git config -f .gitmodules --get-regexp '^submodule\..*\.path$' |
+    while read path_key path
+    do
+        rm -rf $path
+        url_key=$(echo $path_key | sed 's/\.path/.url/')
+        url=$(git config -f .gitmodules --get "$url_key")
+        if [[ $url == *ClickHouse-Extras* ]]
+        then
+            git submodule add -b clickhouse $url $path
+        else
+            git submodule add $url $path
+        fi
+    done
 CH_VERSION=@CH_VERSION@
 CH_VERSION_ARR=(${CH_VERSION//./ })
 # prepare cmake files
