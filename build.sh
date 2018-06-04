@@ -85,9 +85,6 @@ export PATH=${PATH/"/usr/local/bin:"/}:/usr/local/bin
 . ./src/publish_packagecloud.lib.sh
 . ./src/publish_ssh.lib.sh
 
-CMAKE_OPTIONS=""
-MAKE_OPTIONS=""
-
 ##
 ##
 ##
@@ -435,8 +432,11 @@ function build_spec_file()
 
 	banner "Build .spec file"
 
-	CMAKE_OPTIONS="${CMAKE_OPTIONS} -DHAVE_THREE_PARAM_SCHED_SETAFFINITY=1 -DOPENSSL_SSL_LIBRARY=/usr/lib64/libssl.so -DOPENSSL_CRYPTO_LIBRARY=/usr/lib64/libcrypto.so -DOPENSSL_INCLUDE_DIR=/usr/include/openssl"
-	MAKE_OPTIONS=""
+	CMAKE_OPTIONS="${CMAKE_OPTIONS} -DHAVE_THREE_PARAM_SCHED_SETAFFINITY=1"
+	CMAKE_OPTIONS="${CMAKE_OPTIONS} -DOPENSSL_SSL_LIBRARY=/usr/lib64/libssl.so -DOPENSSL_CRYPTO_LIBRARY=/usr/lib64/libcrypto.so -DOPENSSL_INCLUDE_DIR=/usr/include/openssl"
+	CMAKE_OPTIONS="${CMAKE_OPTIONS} -DNO_WERROR=1"
+		  
+	MAKE_OPTIONS="${MAKE_OPTIONS}"
 
 	# Create spec file from template
 	cat "$SRC_DIR/clickhouse.spec.in" | sed \
@@ -475,6 +475,7 @@ function build_RPMs()
 		export CMAKE=cmake3
 		export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 		export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
+		#export CXXFLAGS="${CXXFLAGS} -Wno-maybe-uninitialized"
 	else
 		export CMAKE=cmake
 		export CC=gcc
